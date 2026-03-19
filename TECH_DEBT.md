@@ -1,6 +1,6 @@
 # Knowledge Base — Tech Debt
 
-Трекер пустых/неготовых материалов в `learning/`. Обновлено: 2026-03-19.
+Трекер пустых/неготовых материалов в KB. Обновлено: 2026-03-19.
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Всего файлов | 21 |
-| Готово (полный контент) | 21 |
+| Всего файлов | 25 |
+| Готово (полный контент) | 25 |
 | Скелеты (только TODO) | 0 |
-| Готовых вопросов/упражнений | 71 Q + 10 Ex |
+| Готовых вопросов/упражнений | 112 Q + 10 Ex |
 | Пустых вопросов | **0** |
 | Покрытие | **100%** |
 
@@ -19,7 +19,7 @@
 
 ## Долг по файлам
 
-### 1. `sql/fundamentals.md` — 7 пустых вопросов
+### 1. `sql/fundamentals.md` — 10 вопросов
 
 | Q | Тема | Приоритет | Объём | Статус |
 |---|------|-----------|-------|--------|
@@ -30,8 +30,11 @@
 | Q5 | Подзапросы — correlated vs non-correlated | MED | short | DONE |
 | Q6 | Query optimization (EXPLAIN, индексы) | LOW | medium | DONE |
 | Q7 | Типичные задачи (retention, running total, top-N) | LOW | medium | DONE |
+| Q8 | Gaps and Islands — поиск непрерывных периодов | **HIGH** | medium | DONE |
+| Q9 | Conditional aggregation, Pivot, Anti-Join | MED | medium | DONE |
+| Q10 | ClickHouse vs PostgreSQL — когда что | MED | medium | DONE |
 
-### 2. `python/coding_interview.md` — 7 пустых вопросов
+### 2. `python/coding_interview.md` — 12 вопросов
 
 | Q | Тема | Приоритет | Объём | Статус |
 |---|------|-----------|-------|--------|
@@ -42,8 +45,13 @@
 | Q5 | Генераторы и итераторы (yield, lazy evaluation) | **HIGH** | short | DONE |
 | Q6 | GIL (threading vs multiprocessing vs asyncio) | LOW | short | DONE |
 | Q7 | Live coding задачи (two sum, parentheses, merge intervals) | LOW | medium | DONE |
+| Q8 | Memory Management и Garbage Collection | MED | medium | DONE |
+| Q9 | Mutable vs Immutable, copy vs deepcopy | MED | medium | DONE |
+| Q10 | NumPy — broadcasting, strides, vectorization | **HIGH** | medium | DONE |
+| Q11 | `__slots__` и дескрипторы | LOW | medium | DONE |
+| Q12 | Типизация (typing) и статический анализ | MED | medium | DONE |
 
-### 3. `linear-algebra/core_concepts.md` — 6 пустых вопросов
+### 3. `linear-algebra/core_concepts.md` — 6 вопросов
 
 | Q | Тема | Приоритет | Объём | Статус |
 |---|------|-----------|-------|--------|
@@ -54,7 +62,7 @@
 | Q5 | PCA через линалг (ковариационная матрица → собственные векторы) | **HIGH** | medium | DONE |
 | Q6 | Нормы в ML (L1/Lasso, L2/Ridge, Frobenius) | MED | short | DONE |
 
-### 4. `system-design/ml_systems.md` — 6 пустых вопросов
+### 4. `system-design/ml_systems.md` — 10 вопросов
 
 | Q | Тема | Приоритет | Объём | Статус |
 |---|------|-----------|-------|--------|
@@ -64,22 +72,66 @@
 | Q4 | Monitoring и drift detection (KS-test, PSI) | MED | medium | DONE |
 | Q5 | A/B тестирование моделей (shadow mode, canary) | MED | short | DONE |
 | Q6 | Масштабирование ML (distributed training, data parallelism) | LOW | short | DONE |
+| Q7 | Рекомендательная система: Two-Stage Funnel | **HIGH** | medium | DONE |
+| Q8 | Антифрод: проектирование системы | **HIGH** | medium | DONE |
+| Q9 | Cold Start Problem в рекомендациях | MED | short | DONE |
+| Q10 | MLOps инструменты: DVC, MLflow, Airflow | MED | medium | DONE |
 
----
+### 5. `classic-ml/theory.md` — 10 вопросов (NEW)
 
-## Рекомендованный порядок заполнения
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q1 | Градиентный бустинг — алгоритм | **HIGH** | medium | DONE |
+| Q2 | CatBoost vs LightGBM vs XGBoost | **HIGH** | medium | DONE |
+| Q3 | Bias-Variance Tradeoff | **HIGH** | medium | DONE |
+| Q4 | Предпосылки линейной регрессии | MED | medium | DONE |
+| Q5 | Интерпретация коэффициентов логрег | MED | medium | DONE |
+| Q6 | L1 (Lasso) vs L2 (Ridge) | **HIGH** | medium | DONE |
+| Q7 | Метрики для несбалансированных выборок | **HIGH** | medium | DONE |
+| Q8 | Кодирование категориальных признаков | MED | medium | DONE |
+| Q9 | Bagging vs Boosting | MED | medium | DONE |
+| Q10 | Open-ended: предсказание оттока (Churn) | MED | medium | DONE |
 
-Приоритет по ROI для intern-собеседований:
+### 6. `deep-learning/transformers.md` — 5 вопросов (NEW)
 
-| # | Что заполнить | Почему | ~Время |
-|---|--------------|--------|--------|
-| 1 | SQL: JOINs, window functions, GROUP BY (Q1-3) | Спрашивают на каждом DS-собесе | 1.5h |
-| 2 | Python: структуры данных + алгоритмы + generators (Q1,2,5) | Live coding раунды | 1.5h |
-| 3 | Linear algebra: vectors/norms + PCA (Q1,2,5) | ML theory раунды, связь с feature engineering | 1.5h |
-| 4 | SQL: CTE + подзапросы (Q4-5) | Углубление SQL | 30min |
-| 5 | Python: ООП + декораторы (Q3-4) | Код-ревью вопросы | 1h |
-| 6 | Linear algebra: eigenvalues, SVD, norms (Q3,4,6) | Глубокое понимание PCA/рекомендаций | 1.5h |
-| 7 | System design: ML pipeline + serving (Q1,3) | Показать системное мышление | 1h |
-| 8 | Остальное (SQL Q6-7, Python Q6-7, SysDes Q2,4-6) | Низкий приоритет для intern | 2h |
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q1 | Self-Attention — математика и интуиция | **HIGH** | medium | DONE |
+| Q2 | Positional Encoding и Multi-Head Attention | MED | medium | DONE |
+| Q3 | PyTorch: autograd, DataLoader, оптимизация памяти | **HIGH** | medium | DONE |
+| Q4 | LoRA (Low-Rank Adaptation) | MED | medium | DONE |
+| Q5 | Vision Transformers (ViT) и стратегии дообучения | LOW | medium | DONE |
 
-**Итого на заполнение всего долга: ~10-11 часов**
+### 7. `genai/rag_systems.md` — 5 вопросов (NEW)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q1 | Архитектура RAG-системы | **HIGH** | medium | DONE |
+| Q2 | RAG vs Fine-Tuning — когда что | **HIGH** | medium | DONE |
+| Q3 | Chunking и стратегии нарезки | MED | medium | DONE |
+| Q4 | Vector Search: Dense vs Sparse, Hybrid, Reranking | MED | medium | DONE |
+| Q5 | Evaluation RAG-систем (RAGAS, LLM-as-judge) | MED | medium | DONE |
+
+### 8. `soft-skills/behavioral.md` — 6 вопросов (NEW)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q1 | STAR framework — расскажи про проект | **HIGH** | medium | DONE |
+| Q2 | Объясни алгоритм продакт-менеджеру | MED | short | DONE |
+| Q3 | Нейросеть vs интерпретируемая модель | **HIGH** | short | DONE |
+| Q4 | Грязные данные / нехватка разметки | MED | short | DONE |
+| Q5 | Конфликт по выбору архитектуры | MED | short | DONE |
+| Q6 | Почему ML/DS? Почему наша компания? | **HIGH** | short | DONE |
+
+### 9. `math-and-stats/statistics.md` — 7 вопросов (+2 new)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q16 | Ошибки I и II рода, мощность теста | **HIGH** | medium | DONE |
+| Q17 | Multiple Hypothesis Testing — Бонферрони, BH | MED | medium | DONE |
+
+### 10. `math-and-stats/applied_stats.md` — 5 вопросов (+1 new)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q13 | Сетевые эффекты (Network Effects) в A/B тестах | MED | medium | DONE |

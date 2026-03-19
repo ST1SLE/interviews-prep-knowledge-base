@@ -2,6 +2,8 @@
 
 Навигация по всем материалам для подготовки к ML/DS/AI Engineer Intern собеседованиям.
 
+**Всего: 112 вопросов + 10 exercises | 25 файлов | 9 доменов**
+
 ---
 
 ## Math & Statistics
@@ -9,8 +11,14 @@
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
 | [math-and-stats/probability.md](math-and-stats/probability.md) | Случайные величины, распределения, Байес, LLN | 6 |
-| [math-and-stats/statistics.md](math-and-stats/statistics.md) | CLT, hypothesis testing, CI, bootstrap | 5 |
-| [math-and-stats/applied_stats.md](math-and-stats/applied_stats.md) | Correlation/causation, A/B tests, MLE/MAP, bias-variance | 4 |
+| [math-and-stats/statistics.md](math-and-stats/statistics.md) | CLT, hypothesis testing, CI, bootstrap, Type I/II errors, Bonferroni | 7 |
+| [math-and-stats/applied_stats.md](math-and-stats/applied_stats.md) | Correlation/causation, A/B tests, MLE/MAP, bias-variance, network effects | 5 |
+
+## Classic ML — Theory
+
+| Файл | Содержание | Вопросов |
+|------|-----------|----------|
+| [classic-ml/theory.md](classic-ml/theory.md) | Boosting, bias-variance, L1/L2, metrics, encoding, bagging, churn | 10 |
 
 ## Classic ML — Practice
 
@@ -30,6 +38,7 @@
 | [deep-learning/training.md](deep-learning/training.md) | Optimizers, gradients, regularization, batch norm, LR | 5 |
 | [deep-learning/architectures.md](deep-learning/architectures.md) | CNN, RNN/LSTM, transfer learning, выбор архитектуры | 4 |
 | [deep-learning/pytorch.md](deep-learning/pytorch.md) | Training loop, nn.Module | 2 |
+| [deep-learning/transformers.md](deep-learning/transformers.md) | Self-Attention, positional encoding, LoRA, ViT | 5 |
 
 ## Generative AI & Agents
 
@@ -39,6 +48,7 @@
 | [genai/tool_use.md](genai/tool_use.md) | Function calling, tool logic, structured output, MCP | 4 |
 | [genai/advanced_patterns.md](genai/advanced_patterns.md) | Фреймворки, multi-agent, agentic RAG, voice AI | 4 |
 | [genai/production.md](genai/production.md) | Guardrails, evaluation, error handling | 3 |
+| [genai/rag_systems.md](genai/rag_systems.md) | RAG architecture, chunking, vector search, evaluation | 5 |
 
 ## Linear Algebra
 
@@ -50,19 +60,25 @@
 
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
-| [python/coding_interview.md](python/coding_interview.md) | Data structures, algorithms, OOP, decorators, generators, GIL | 7 |
+| [python/coding_interview.md](python/coding_interview.md) | Data structures, algorithms, OOP, decorators, generators, GIL, memory, NumPy, typing | 12 |
 
 ## SQL
 
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
-| [sql/fundamentals.md](sql/fundamentals.md) | JOINs, GROUP BY, window functions, CTEs, optimization | 7 |
+| [sql/fundamentals.md](sql/fundamentals.md) | JOINs, GROUP BY, window functions, CTEs, optimization, gaps & islands, ClickHouse | 10 |
 
 ## System Design
 
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
-| [system-design/ml_systems.md](system-design/ml_systems.md) | Pipelines, serving, monitoring, A/B, scaling | 6 |
+| [system-design/ml_systems.md](system-design/ml_systems.md) | Pipelines, serving, monitoring, A/B, scaling, RecSys, fraud, MLOps | 10 |
+
+## Soft Skills
+
+| Файл | Содержание | Вопросов |
+|------|-----------|----------|
+| [soft-skills/behavioral.md](soft-skills/behavioral.md) | STAR framework, technical communication, trade-offs, "why ML" | 6 |
 
 ---
 

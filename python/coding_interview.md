@@ -727,11 +727,273 @@ print(binary_search_bisect(nums, 8))   # -1
 
 ---
 
+## Q8. "Memory Management и Garbage Collection"
+
+> "Python использует два механизма управления памятью:
+>
+> **Reference counting** — каждый объект имеет счётчик ссылок. Когда счётчик = 0, память освобождается сразу. `sys.getrefcount(obj)` показывает текущий счётчик (результат всегда на 1 больше реального — сама функция создаёт ссылку).
+>
+> **Циклический сборщик мусора** (generational GC) — решает проблему циклических ссылок (A → B → A, refcount никогда не станет 0). Три поколения: gen0 (новые объекты, часто проверяются), gen1, gen2 (старые, редко). Модуль `gc`: `gc.collect()`, `gc.get_referrers()`, `gc.disable()`.
+>
+> **`__del__`** (финализатор) — вызывается при уничтожении объекта. Подводные камни: порядок вызова не гарантирован, может воскресить объект (создать новую ссылку), тормозит GC при циклических ссылках. Лучше использовать context managers (`with`) или `weakref.finalize()`.
+>
+> Зачем знать: утечки памяти при обработке больших датасетов. Пример: замыкание в callback-е хранит ссылку на DataFrame → GC не может собрать."
+
+```python
+import sys
+import gc
+
+# Reference counting
+a = [1, 2, 3]
+print(sys.getrefcount(a))  # 2 (a + аргумент функции)
+b = a                       # ещё одна ссылка
+print(sys.getrefcount(a))  # 3
+del b
+print(sys.getrefcount(a))  # 2
+
+# Циклическая ссылка — refcount не спасёт
+class Node:
+    def __init__(self):
+        self.ref = None
+
+a = Node()
+b = Node()
+a.ref = b  # a → b
+b.ref = a  # b → a (цикл!)
+del a, b   # refcount каждого = 1 (не 0!) → только GC соберёт
+
+gc.collect()  # принудительный сбор мусора
+print(gc.get_stats())  # статистика по поколениям
+```
+
+---
+
+## Q9. "Mutable vs Immutable, copy vs deepcopy"
+
+> "**Immutable**: `int`, `float`, `str`, `tuple`, `frozenset`, `bytes` — нельзя изменить после создания. При 'изменении' создаётся новый объект.
+>
+> **Mutable**: `list`, `dict`, `set`, `bytearray` — можно изменить in-place.
+>
+> Ловушка: mutable внутри immutable. `tuple` с `list` внутри — `tuple` нельзя заменить элемент, но `list` внутри можно мутировать!
+>
+> **`copy.copy()`** (shallow) — копирует объект, но вложенные объекты остаются ссылками. Изменение вложенного объекта в копии затронет оригинал.
+>
+> **`copy.deepcopy()`** — рекурсивно копирует всё. Безопасно, но дороже по памяти и времени.
+>
+> Ловушка при аугментации данных: мутация вложенных объектов в списке конфигов → все конфиги указывают на один и тот же dict."
+
+```python
+import copy
+
+# Mutable внутри immutable
+t = ([1, 2], [3, 4])
+# t[0] = [5, 6]   # TypeError: tuple не поддерживает присваивание
+t[0].append(99)    # Но list внутри можно мутировать!
+print(t)           # ([1, 2, 99], [3, 4])
+
+# shallow copy vs deepcopy
+original = {"params": [1, 2, 3], "name": "model_v1"}
+
+shallow = copy.copy(original)
+shallow["params"].append(4)       # мутация вложенного list
+print(original["params"])         # [1, 2, 3, 4] — оригинал тоже изменился!
+
+deep = copy.deepcopy(original)
+deep["params"].append(5)          # мутация копии
+print(original["params"])         # [1, 2, 3, 4] — оригинал не тронут
+
+# Ловушка: default mutable argument
+def add_item(item, lst=[]):   # ПЛОХО: lst общий для всех вызовов
+    lst.append(item)
+    return lst
+
+def add_item_safe(item, lst=None):  # ХОРОШО
+    if lst is None:
+        lst = []
+    lst.append(item)
+    return lst
+```
+
+---
+
+## Q10. "NumPy — почему быстрее списков и что такое broadcasting"
+
+> "NumPy массивы в 10-100x быстрее Python списков по трём причинам:
+>
+> 1. **Contiguous memory**: элементы хранятся последовательно в памяти (как C-массив). Python `list` хранит указатели на разбросанные объекты → cache misses.
+> 2. **C-API + SIMD**: операции реализованы на C/Fortran с векторизацией (SIMD инструкции процессора). Один вызов NumPy заменяет миллион Python-операций.
+> 3. **Нет boxing/unboxing**: элементы — сырые числа (int64, float64), а не Python-объекты с refcount/type.
+>
+> **Strides** — сколько байт пропустить для перехода к следующему элементу по каждой оси. Почему `transpose` за $O(1)$: не копирует данные, а меняет strides.
+>
+> **Broadcasting** — автоматическое расширение размерностей при операциях над массивами разной формы. Правила:
+> 1. Размерности сравниваются справа налево.
+> 2. Размерности совместимы, если равны или одна из них = 1.
+> 3. Размерность 1 'растягивается' до нужного размера."
+
+```python
+import numpy as np
+import time
+
+# === Скорость: NumPy vs list ===
+n = 10**6
+lst = list(range(n))
+arr = np.arange(n)
+
+start = time.perf_counter()
+result_list = [x * 2 for x in lst]      # Python loop
+print(f"List: {time.perf_counter() - start:.4f}s")
+
+start = time.perf_counter()
+result_numpy = arr * 2                    # Vectorized
+print(f"NumPy: {time.perf_counter() - start:.4f}s")  # ~50-100x быстрее
+
+# === Strides: transpose за O(1) ===
+a = np.array([[1, 2, 3], [4, 5, 6]])
+print(a.strides)    # (24, 8) — 24 байт до следующей строки, 8 до следующего элемента
+b = a.T
+print(b.strides)    # (8, 24) — просто поменяли strides, данные не копировались
+
+# === Broadcasting ===
+matrix = np.array([[1, 2, 3], [4, 5, 6]])  # shape (2, 3)
+row = np.array([10, 20, 30])                 # shape (3,) → broadcast до (2, 3)
+print(matrix + row)
+# [[11, 22, 33],
+#  [14, 25, 36]]
+
+col = np.array([[100], [200]])               # shape (2, 1) → broadcast до (2, 3)
+print(matrix + col)
+# [[101, 102, 103],
+#  [204, 205, 206]]
+```
+
+| Аспект | Python list | NumPy array |
+|--------|------------|-------------|
+| Память | Указатели на объекты (разбросаны) | Contiguous block (последовательно) |
+| Тип элементов | Любой (гетерогенный) | Один тип (homogeneous) |
+| Скорость | Python loop ($O(n)$ интерпретатор) | C/SIMD vectorized |
+| Операции | Поэлементный loop | Broadcasting, vectorization |
+
+---
+
+## Q11. "`__slots__` и дескрипторы"
+
+> "`__slots__` — ограничивает атрибуты экземпляра фиксированным набором. Блокирует создание `__dict__` → экономия RAM при миллионах объектов (узлы графа, элементы дерева).
+>
+> Без `__slots__`: каждый экземпляр хранит `__dict__` (~100-200 байт). С `__slots__`: только значения атрибутов.
+>
+> **Протокол дескрипторов** (`__get__`, `__set__`, `__delete__`) — механизм, через который работают `@property`, `classmethod`, `staticmethod`. Дескриптор — объект, определяющий хотя бы один из этих методов. При доступе к атрибуту Python вызывает дескриптор вместо обычного lookup.
+>
+> Связь с PyTorch: `nn.Module` использует `__setattr__` и дескрипторы для автоматической регистрации `nn.Parameter` и `nn.Module` — поэтому `self.layer = nn.Linear(10, 5)` автоматически попадает в `model.parameters()`."
+
+```python
+import sys
+
+# === __slots__: экономия памяти ===
+class NodeWithDict:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class NodeWithSlots:
+    __slots__ = ('value', 'left', 'right')
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+n1 = NodeWithDict(42)
+n2 = NodeWithSlots(42)
+print(sys.getsizeof(n1) + sys.getsizeof(n1.__dict__))  # ~200 байт
+print(sys.getsizeof(n2))                                  # ~64 байт
+
+# n2.color = "red"  # AttributeError: __slots__ не позволяет
+
+# === Дескриптор: как работает @property ===
+class Percentage:
+    """Дескриптор — валидирует значение при присваивании."""
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __get__(self, obj, objtype=None):
+        return getattr(obj, f'_{self.name}', 0)
+
+    def __set__(self, obj, value):
+        if not 0 <= value <= 100:
+            raise ValueError(f"{self.name} must be 0-100, got {value}")
+        setattr(obj, f'_{self.name}', value)
+
+class ModelMetrics:
+    accuracy = Percentage()
+    recall = Percentage()
+
+m = ModelMetrics()
+m.accuracy = 95    # вызывает Percentage.__set__
+# m.accuracy = 150 # ValueError: accuracy must be 0-100, got 150
+```
+
+---
+
+## Q12. "Типизация (typing) и статический анализ"
+
+> "Модуль `typing` добавляет аннотации типов в Python. Не влияет на runtime (Python остаётся динамическим), но:
+>
+> 1. **Документирование API** — читаешь сигнатуру и сразу понимаешь, что на вход и на выход.
+> 2. **Автокомплит в IDE** — PyCharm/VSCode понимают типы → лучшие подсказки.
+> 3. **Раннее обнаружение ошибок** — mypy/pyright находят баги до запуска.
+>
+> Ключевые типы: `Optional[X]` = `X | None`, `Union[X, Y]`, `Callable[[Args], Return]`, `TypeVar` (generic), `Generic[T]`.
+>
+> Зачем в ML-проектах: API FastAPI автоматически валидирует типы через Pydantic. CatBoost `.predict()` возвращает `np.ndarray` — зная это, IDE даёт правильный автокомплит."
+
+```python
+from typing import Optional, Union, Callable, TypeVar, Generic
+from dataclasses import dataclass
+import numpy as np
+
+T = TypeVar('T')
+
+def find_best_threshold(
+    y_true: np.ndarray,
+    y_proba: np.ndarray,
+    metric: Callable[[np.ndarray, np.ndarray], float],
+    thresholds: Optional[list[float]] = None,
+) -> tuple[float, float]:
+    """Найти лучший threshold по заданной метрике."""
+    if thresholds is None:
+        thresholds = [i / 100 for i in range(1, 100)]
+    best_t, best_score = 0.5, 0.0
+    for t in thresholds:
+        preds = (y_proba >= t).astype(int)
+        score = metric(y_true, preds)
+        if score > best_score:
+            best_t, best_score = t, score
+    return best_t, best_score
+
+@dataclass
+class ModelResult(Generic[T]):
+    """Результат модели с параметризованным типом."""
+    prediction: T
+    confidence: float
+    model_name: str
+
+result_clf: ModelResult[int] = ModelResult(prediction=1, confidence=0.95, model_name="catboost")
+result_reg: ModelResult[float] = ModelResult(prediction=3.14, confidence=0.87, model_name="linear")
+```
+
+---
+
 ## Приоритет для intern-level
 
 | Тема | Приоритет | Почему |
 |------|-----------|--------|
-| Структуры данных + сложность | **Высокий** | Основа любого coding interview |
-| List comprehension, generators | **Высокий** | Pythonic code |
-| ООП, декораторы | Средний | Зависит от компании |
-| GIL, asyncio | Низкий | Для senior-позиций |
+| Структуры данных + сложность (Q1) | **Высокий** | Основа любого coding interview |
+| List comprehension, generators (Q5) | **Высокий** | Pythonic code |
+| NumPy, broadcasting (Q10) | **Высокий** | DS/ML — работа с массивами каждый день |
+| Memory management (Q8) | Средний | Утечки памяти при больших данных |
+| Mutable/Immutable, copy (Q9) | Средний | Частый источник багов |
+| ООП, декораторы (Q3, Q4) | Средний | Зависит от компании |
+| Типизация (Q12) | Средний | Современный Python, FastAPI |
+| `__slots__`, дескрипторы (Q11) | Низкий | Для продвинутых позиций |
+| GIL, asyncio (Q6) | Низкий | Для senior-позиций |

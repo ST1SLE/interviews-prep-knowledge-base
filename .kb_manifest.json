@@ -1,19 +1,20 @@
 {
   "version": "1.0",
   "updated": "2026-03-19",
-  "total_files": 21,
-  "total_questions": 71,
+  "total_files": 25,
+  "total_questions": 112,
   "total_exercises": 10,
   "domains": {
     "math-and-stats": {
       "files": [
         {"path": "math-and-stats/probability.md", "size": 5824, "questions": 6, "status": "complete"},
-        {"path": "math-and-stats/statistics.md", "size": 5370, "questions": 5, "status": "complete"},
-        {"path": "math-and-stats/applied_stats.md", "size": 4684, "questions": 4, "status": "complete"}
+        {"path": "math-and-stats/statistics.md", "size": 10561, "questions": 7, "status": "complete"},
+        {"path": "math-and-stats/applied_stats.md", "size": 7272, "questions": 5, "status": "complete"}
       ]
     },
     "classic-ml": {
       "files": [
+        {"path": "classic-ml/theory.md", "size": 24412, "questions": 10, "status": "complete"},
         {"path": "classic-ml/practice_from_scratch.md", "size": 7500, "exercises": 3, "status": "complete"},
         {"path": "classic-ml/practice_evaluation.md", "size": 4495, "exercises": 2, "status": "complete"},
         {"path": "classic-ml/practice_features.md", "size": 4850, "exercises": 2, "status": "complete"},
@@ -26,7 +27,8 @@
         {"path": "deep-learning/fundamentals.md", "size": 3652, "questions": 4, "status": "complete"},
         {"path": "deep-learning/training.md", "size": 4840, "questions": 5, "status": "complete"},
         {"path": "deep-learning/architectures.md", "size": 5067, "questions": 4, "status": "complete"},
-        {"path": "deep-learning/pytorch.md", "size": 2487, "questions": 2, "status": "complete"}
+        {"path": "deep-learning/pytorch.md", "size": 2487, "questions": 2, "status": "complete"},
+        {"path": "deep-learning/transformers.md", "size": 13426, "questions": 5, "status": "complete"}
       ]
     },
     "genai": {
@@ -34,7 +36,8 @@
         {"path": "genai/agent_fundamentals.md", "size": 4628, "questions": 4, "status": "complete"},
         {"path": "genai/tool_use.md", "size": 4870, "questions": 4, "status": "complete"},
         {"path": "genai/advanced_patterns.md", "size": 4830, "questions": 4, "status": "complete"},
-        {"path": "genai/production.md", "size": 3776, "questions": 3, "status": "complete"}
+        {"path": "genai/production.md", "size": 3776, "questions": 3, "status": "complete"},
+        {"path": "genai/rag_systems.md", "size": 13358, "questions": 5, "status": "complete"}
       ]
     },
     "linear-algebra": {
@@ -44,17 +47,22 @@
     },
     "python": {
       "files": [
-        {"path": "python/coding_interview.md", "size": 29822, "questions": 7, "status": "complete"}
+        {"path": "python/coding_interview.md", "size": 43001, "questions": 12, "status": "complete"}
       ]
     },
     "sql": {
       "files": [
-        {"path": "sql/fundamentals.md", "size": 23873, "questions": 7, "status": "complete"}
+        {"path": "sql/fundamentals.md", "size": 30533, "questions": 10, "status": "complete"}
       ]
     },
     "system-design": {
       "files": [
-        {"path": "system-design/ml_systems.md", "size": 24390, "questions": 6, "status": "complete"}
+        {"path": "system-design/ml_systems.md", "size": 32406, "questions": 10, "status": "complete"}
+      ]
+    },
+    "soft-skills": {
+      "files": [
+        {"path": "soft-skills/behavioral.md", "size": 11588, "questions": 6, "status": "complete"}
       ]
     }
   }

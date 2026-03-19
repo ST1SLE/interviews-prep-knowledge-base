@@ -81,3 +81,95 @@ for _ in range(1000):
 ci_lower, ci_upper = np.percentile(scores, [2.5, 97.5])
 print(f"ROC-AUC: {np.mean(scores):.3f} [{ci_lower:.3f}, {ci_upper:.3f}]")
 ```
+
+---
+
+## Q16. "Ошибки I и II рода, мощность теста"
+
+> "**Type I Error** (False Positive, $\alpha$): отвергаем верную $H_0$. Контроль: уровень значимости $\alpha$ (обычно 0.05). Пример в ML: запустили вредную фичу, потому что A/B тест показал ложный 'значимый' результат.
+>
+> **Type II Error** (False Negative, $\beta$): не отвергаем $H_0$, хотя она ложна. Пропускаем реальный эффект. Пример: полезная фича не прошла A/B тест из-за малого sample size.
+>
+> **Мощность теста** (Power) $= 1 - \beta$ — вероятность обнаружить реальный эффект, если он существует. Стандарт: power = 0.8 (80%).
+>
+> Факторы, влияющие на мощность:
+> - $n$ (размер выборки) ↑ → мощность ↑
+> - Effect size ↑ → мощность ↑
+> - $\alpha$ ↑ → мощность ↑ (но больше ложных срабатываний)
+> - Дисперсия ↓ → мощность ↑
+>
+> Компромисс: увеличение $\alpha$ даёт больше мощности, но больше False Positives. На практике: фиксируем $\alpha = 0.05$, подбираем $n$ для нужной мощности."
+
+| Ошибка | Название | Вероятность | ML-пример | Контроль |
+|--------|----------|-------------|-----------|----------|
+| **Type I** | False Positive | $\alpha$ | Запуск вредной фичи | Уровень значимости $\alpha$ |
+| **Type II** | False Negative | $\beta$ | Пропуск полезной фичи | Мощность $1 - \beta$, увеличение $n$ |
+
+```python
+from scipy.stats import norm
+import numpy as np
+
+def sample_size_for_ab_test(
+    baseline_rate: float,
+    mde: float,
+    alpha: float = 0.05,
+    power: float = 0.8,
+) -> int:
+    """Размер выборки для A/B теста (z-test для пропорций)."""
+    z_alpha = norm.ppf(1 - alpha / 2)
+    z_beta = norm.ppf(power)
+    p1 = baseline_rate
+    p2 = baseline_rate + mde
+    n = ((z_alpha + z_beta) ** 2 * (p1 * (1 - p1) + p2 * (1 - p2))) / mde ** 2
+    return int(np.ceil(n))
+
+n = sample_size_for_ab_test(baseline_rate=0.05, mde=0.01)
+print(f"Нужно {n} пользователей на группу")  # ~7000-8000
+```
+
+---
+
+## Q17. "Multiple Hypothesis Testing — поправка Бонферрони"
+
+> "**Проблема множественных сравнений**: при тестировании $n$ гипотез с $\alpha = 0.05$ вероятность хотя бы одного ложного срабатывания:
+>
+> $$P(\text{хотя бы 1 FP}) = 1 - (1 - \alpha)^n$$
+>
+> При $n = 20$ метриках: $1 - 0.95^{20} \approx 0.64$ — больше половины!
+>
+> **Коррекция Бонферрони**: используем $\alpha' = \alpha / n$. При 20 тестах: $\alpha' = 0.05/20 = 0.0025$. Плюс: простая, гарантирует FWER (Family-Wise Error Rate). Минус: слишком консервативная — теряем мощность.
+>
+> **Benjamini-Hochberg (FDR)**: контролирует **долю** ложных открытий (False Discovery Rate), а не вероятность хотя бы одного. Менее консервативная → больше мощности. Алгоритм: сортируем p-values, сравниваем с порогом $\alpha \cdot k/n$.
+>
+> Когда Бонферрони: критичные решения (медицина, финансы). Когда BH: exploratory analysis, много метрик в A/B тесте."
+
+| Метод | Контролирует | Консервативность | Когда |
+|-------|-------------|-----------------|-------|
+| Без коррекции | Ничего | Нет | 1 тест |
+| **Бонферрони** | FWER ($P \geq 1$ FP) | **Высокая** | Критичные решения |
+| **Benjamini-Hochberg** | FDR (доля FP) | Умеренная | Exploratory, A/B с 10+ метриками |
+
+```python
+from scipy.stats import false_discovery_control
+import numpy as np
+
+p_values = [0.001, 0.008, 0.039, 0.041, 0.049,
+            0.12, 0.15, 0.23, 0.34, 0.45,
+            0.51, 0.55, 0.62, 0.71, 0.73,
+            0.78, 0.83, 0.88, 0.91, 0.97]
+
+alpha = 0.05
+n = len(p_values)
+
+# Бонферрони: alpha/n
+bonferroni_significant = [p < alpha / n for p in p_values]
+print(f"Bonferroni: {sum(bonferroni_significant)} значимых")  # 2
+
+# Benjamini-Hochberg
+sorted_p = sorted(enumerate(p_values), key=lambda x: x[1])
+bh_significant = [False] * n
+for k, (idx, p) in enumerate(sorted_p, 1):
+    if p <= alpha * k / n:
+        bh_significant[idx] = True
+print(f"BH (FDR): {sum(bh_significant)} значимых")  # 4-5
+```

@@ -370,12 +370,131 @@ def train_ddp(rank, world_size):
 
 ---
 
+## Q7. "Рекомендательная система: Two-Stage Funnel"
+
+> "Рекомендательные системы работают двухэтапно — полный ranking на миллионах items невозможен ($O(n)$ по тяжёлой модели):
+>
+> **Stage 1: Candidate Generation** (миллионы → тысячи, <10ms)
+> Быстрые и грубые модели, задача — не пропустить релевантное:
+> - Коллаборативная фильтрация (ALS, implicit feedback)
+> - Two-Tower нейросети (user tower + item tower → dot product)
+> - Popularity-based (новые/трендовые items)
+> - Content-based (по похожести фичей)
+>
+> **Stage 2: Ranking** (тысячи → десятки, <50ms)
+> Точные и тяжёлые модели:
+> - GBM (CatBoost/LightGBM) с rich features (user x item x context)
+> - Deep ranking models (DeepFM, Wide&Deep)
+> - Метрики: NDCG, MAP, MRR
+>
+> Примеры: Spotify Discover Weekly, Netflix, Яндекс Музыка. Почему двухэтапная: 10M items x 100ms/item для точной модели = 11.5 дней. С candidate generation: 10M → 1000 → 100ms x 1000 = 100s → ещё нужен fast model."
+
+| Этап | Задача | Модели | Скорость | Метрика |
+|------|--------|--------|----------|---------|
+| Candidate Generation | Миллионы → тысячи | ALS, Two-Tower, BM25 | $< 10$ ms | Recall@K |
+| Ranking | Тысячи → десятки | CatBoost, DeepFM | $< 50$ ms | NDCG, MAP |
+| Re-ranking | Бизнес-логика | Rules (diversity, freshness) | $< 5$ ms | Business KPIs |
+
+---
+
+## Q8. "Антифрод: проектирование системы обнаружения мошенничества"
+
+> "Fraud detection — одна из самых частых system design задач на DS-собесе.
+>
+> **Особенности задачи:**
+> - Экстремальный дисбаланс: < 1% фродовых транзакций
+> - Low-latency: решение до списания средств (< 100ms)
+> - Высокая цена FN: пропуск мошенничества → финансовые потери
+> - Высокая цена FP: блокировка легитимной транзакции → ухудшение UX
+>
+> **Метрики**: PR-AUC > ROC-AUC (при сильном дисбалансе). Recall@FPR=1% — 'сколько фрода ловим, если блокируем 1% легитимных'.
+>
+> **Архитектура**: микросервис с моделью в inference pipeline. Транзакция → feature computation → model inference → decision → proceed/block. Cascade: лёгкая модель (rules + logistic regression, <5ms) → тяжёлая модель (GBM, <50ms) только для пограничных случаев. Human-in-the-loop: пограничные кейсы → ручная проверка аналитиком.
+>
+> Связь с Альфа-Банком: кредитный скоринг — та же архитектура: low-latency decision, дисбаланс, каскад моделей."
+
+| Компонент | Роль | Latency |
+|-----------|------|---------|
+| Rule engine | Жёсткие правила (страна в blacklist, сумма > X) | < 1 ms |
+| Light model | LogReg / simple GBM, первичный scoring | < 5 ms |
+| Heavy model | CatBoost с rich features | < 50 ms |
+| Human review | Пограничные кейсы | Минуты |
+
+---
+
+## Q9. "Cold Start Problem в рекомендациях"
+
+> "Cold Start — нет истории для нового пользователя или нового item. Коллаборативная фильтрация не работает (нет взаимодействий).
+>
+> **Новый пользователь:**
+> - Глобальная популярность (показать самое популярное)
+> - Гео-тренды (популярное в городе пользователя)
+> - Онбординг-опрос ('выбери 5 любимых жанров')
+> - Контентная фильтрация (по демографии, если есть)
+> - Explore-exploit: Thompson Sampling / UCB — баланс между показом проверенного и исследованием вкусов
+>
+> **Новый item:**
+> - Metadata-based: жанр, теги, описание → content-based similarity
+> - Холодный буст: принудительно показываем новый item части пользователей для сбора feedback
+> - Explore-exploit (MAB): Multi-Armed Bandit для балансировки exploitation (проверенные items) и exploration (новые items)
+>
+> Постепенный переход: по мере накопления данных → от content-based к коллаборативной фильтрации."
+
+---
+
+## Q10. "MLOps инструменты: DVC, MLflow, Airflow"
+
+> "Три ключевых инструмента MLOps pipeline:
+>
+> **DVC** (Data Version Control) — 'Git для данных'. Хранит метаданные в Git (`.dvc` файлы), сами данные — в S3/GCS/SSH. Позволяет версионировать датасеты и воспроизводить эксперименты: `git checkout v1.0 && dvc pull` → данные версии 1.0.
+>
+> **MLflow** — трекинг экспериментов + Model Registry:
+> - Tracking: `mlflow.log_param('lr', 0.01)`, `mlflow.log_metric('auc', 0.95)` → все эксперименты в UI
+> - Model Registry: версионирование моделей (Staging → Production), артефакты
+> - Serving: `mlflow models serve -m 'models:/credit_scoring/Production'`
+>
+> **Airflow** — оркестрация ETL/ML пайплайнов. DAGs (Directed Acyclic Graphs) — граф задач с зависимостями. Scheduler запускает по расписанию. Retry, alerting, backfill.
+>
+> Когда нужны: команда > 2 человек, несколько моделей, регулярное переобучение.
+> Когда overkill: один ML-инженер, один notebook, разовый анализ.
+>
+> **Offline vs Online метрики**: ROC-AUC = 0.95 в Jupyter ≠ CTR вырос в проде. Offline метрики оценивают модель, online — продукт. Между ними — A/B тест."
+
+| Инструмент | Что делает | Аналог | Когда нужен |
+|------------|-----------|--------|-------------|
+| **DVC** | Версионирование данных | Git для файлов > 1 MB | Датасеты меняются со временем |
+| **MLflow** | Трекинг экспериментов, Model Registry | W&B, Neptune | > 10 экспериментов, нужен Model Registry |
+| **Airflow** | Оркестрация пайплайнов (DAGs) | Prefect, Dagster | Регулярное переобучение, ETL |
+
+```python
+import mlflow
+
+with mlflow.start_run(run_name="catboost_v3"):
+    mlflow.log_params({
+        "learning_rate": 0.05,
+        "depth": 6,
+        "iterations": 1000,
+    })
+    mlflow.log_metrics({
+        "auc_train": 0.97,
+        "auc_val": 0.94,
+        "gini": 0.88,
+    })
+    mlflow.catboost.log_model(model, "model")
+```
+
+---
+
 ## Приоритет для intern-level
 
 | Тема | Приоритет | Почему |
 |------|-----------|--------|
-| ML pipeline end-to-end | **Высокий** | Показывает системное мышление |
-| Model serving | Средний | FastAPI — уже в стеке |
-| Monitoring, drift | Средний | Часто спрашивают на DS |
-| A/B тестирование | Средний | Базовое понимание обязательно |
-| Feature Store, масштабирование | Низкий | Для senior ML Engineer |
+| ML pipeline end-to-end (Q1) | **Высокий** | Показывает системное мышление |
+| RecSys funnel (Q7) | **Высокий** | Частый system design вопрос |
+| Антифрод (Q8) | **Высокий** | Связь с финтехом (Альфа-Банк) |
+| Model serving (Q3) | Средний | FastAPI — уже в стеке |
+| Monitoring, drift (Q4) | Средний | Часто спрашивают на DS |
+| A/B тестирование (Q5) | Средний | Базовое понимание обязательно |
+| Cold Start (Q9) | Средний | Показывает понимание рекомендаций |
+| MLOps инструменты (Q10) | Средний | DVC/MLflow — must know tools |
+| Feature Store, масштабирование (Q2, Q6) | Низкий | Для senior ML Engineer |

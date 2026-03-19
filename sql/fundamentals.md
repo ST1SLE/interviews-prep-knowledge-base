@@ -479,14 +479,146 @@ ORDER BY email, id;
 
 ---
 
+## Q8. "Gaps and Islands — поиск непрерывных периодов активности"
+
+> "Классическая задача на собеседовании: найти пользователей с 5+ днями подряд. Паттерн **Gaps and Islands**: разница `date - ROW_NUMBER()` одинакова для последовательных дат → группируем по этому вычисленному идентификатору.
+>
+> Идея: если даты идут подряд (1, 2, 3, 4) и вычитаем ROW_NUMBER (1, 2, 3, 4), получаем одинаковую разницу (0, 0, 0, 0). Если есть пропуск (1, 2, 5, 6), разница будет (0, 0, 2, 2) — разные группы.
+>
+> Этот паттерн работает для любых последовательных значений: даты, номера транзакций, ID."
+
+```sql
+-- Задача: найти пользователей с 5+ днями подряд
+WITH daily_logins AS (
+    SELECT DISTINCT user_id, login_date::date AS dt
+    FROM logins
+),
+islands AS (
+    SELECT
+        user_id,
+        dt,
+        dt - ROW_NUMBER() OVER (
+            PARTITION BY user_id ORDER BY dt
+        )::int AS island_id
+    FROM daily_logins
+),
+streaks AS (
+    SELECT
+        user_id,
+        island_id,
+        MIN(dt) AS streak_start,
+        MAX(dt) AS streak_end,
+        COUNT(*) AS streak_length
+    FROM islands
+    GROUP BY user_id, island_id
+)
+SELECT user_id, streak_start, streak_end, streak_length
+FROM streaks
+WHERE streak_length >= 5
+ORDER BY streak_length DESC;
+```
+
+---
+
+## Q9. "Conditional aggregation и Pivot (сводные таблицы)"
+
+> "**Conditional aggregation** — построение сводных таблиц за один проход с помощью `CASE WHEN` внутри агрегатной функции. Позволяет 'развернуть' строки в столбцы без отдельного PIVOT-оператора (которого нет в PostgreSQL).
+>
+> **Anti-Join** паттерн: найти строки из левой таблицы, которых нет в правой. Три способа:
+> - `LEFT JOIN ... WHERE right.id IS NULL` — самый читаемый
+> - `NOT EXISTS (SELECT 1 FROM ...)` — часто быстрее
+> - `NOT IN (SELECT ...)` — **опасен с NULL**: если подзапрос содержит NULL, `NOT IN` вернёт пустой результат (любое сравнение с NULL = UNKNOWN)."
+
+```sql
+-- Conditional aggregation: сводная таблица за один проход
+SELECT
+    product_id,
+    SUM(CASE WHEN month = '2025-01' THEN revenue ELSE 0 END) AS jan,
+    SUM(CASE WHEN month = '2025-02' THEN revenue ELSE 0 END) AS feb,
+    SUM(CASE WHEN month = '2025-03' THEN revenue ELSE 0 END) AS mar,
+    SUM(revenue) AS total
+FROM monthly_sales
+GROUP BY product_id;
+
+-- Anti-Join: клиенты без заказов в 2025
+-- Способ 1: LEFT JOIN + IS NULL (читаемый)
+SELECT c.id, c.name
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id AND o.order_date >= '2025-01-01'
+WHERE o.id IS NULL;
+
+-- Способ 2: NOT EXISTS (часто быстрее)
+SELECT c.id, c.name
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.customer_id = c.id AND o.order_date >= '2025-01-01'
+);
+
+-- Способ 3: NOT IN — ОПАСНО с NULL!
+SELECT c.id FROM customers c
+WHERE c.id NOT IN (SELECT customer_id FROM orders);
+-- Если хотя бы один customer_id = NULL → результат ПУСТОЙ
+-- Защита: WHERE customer_id IS NOT NULL
+```
+
+---
+
+## Q10. "ClickHouse vs PostgreSQL — когда что"
+
+> "**PostgreSQL** — строковая (row-based) СУБД, оптимизирована для OLTP: вставка/обновление/удаление отдельных строк, транзакции (ACID), сложные JOIN-ы.
+>
+> **ClickHouse** — колоночная (column-based) СУБД, оптимизирована для OLAP: аналитические запросы по миллиардам строк. Хранит каждый столбец отдельно → при `SELECT AVG(amount)` читает только столбец `amount`, пропуская остальные.
+>
+> Почему ClickHouse быстрее для аналитики: колоночное хранение → лучшее сжатие (одинаковые типы данных), меньше I/O (читаем только нужные столбцы), vectorized execution.
+>
+> Особенности ClickHouse: `ARRAY JOIN` (разворачивает массив в строки), higher-order functions (`arrayMap`, `arrayFilter`), partitioning по датам (MergeTree engine).
+>
+> Когда спрашивают: Яндекс, VK, любые компании с большими логами / аналитикой."
+
+| Критерий | PostgreSQL | ClickHouse |
+|----------|-----------|------------|
+| Тип | Row-based (OLTP) | Column-based (OLAP) |
+| Сильные стороны | Транзакции, ACID, JOIN-ы | Аналитика, агрегации, >1B строк |
+| Вставка | По одной строке, быстро | Батчами (bulk insert) |
+| UPDATE/DELETE | Быстро | Медленно / не рекомендуется |
+| Типичный запрос | `SELECT * FROM users WHERE id = 42` | `SELECT city, AVG(amount) FROM orders GROUP BY city` |
+| Сжатие | Умеренное | **Отличное** (LZ4, ZSTD, Delta) |
+| Когда | Основная БД приложения | Логи, аналитика, метрики |
+
+```sql
+-- ClickHouse: пример аналитического запроса
+SELECT
+    toDate(event_time) AS dt,
+    countIf(event = 'purchase') AS purchases,
+    countIf(event = 'view') AS views,
+    round(purchases / views * 100, 2) AS conversion_pct
+FROM events
+WHERE event_time >= today() - 30
+GROUP BY dt
+ORDER BY dt;
+
+-- ARRAY JOIN: разворачиваем теги
+SELECT
+    user_id,
+    tag
+FROM user_profiles
+ARRAY JOIN tags AS tag;  -- tags = ['ml', 'python', 'sql'] → 3 строки
+```
+
+---
+
 ## Приоритет для intern-level
 
 | Тема | Приоритет | Почему |
 |------|-----------|--------|
-| JOINs | **Высокий** | Спрашивают всегда |
-| Window functions | **Высокий** | Отличает junior от intern |
-| GROUP BY + HAVING | **Высокий** | Базовая аналитика |
-| CTE | Средний | Для читаемости сложных запросов |
-| Подзапросы | Средний | IN vs EXISTS — частый вопрос |
-| Типичные задачи | **Высокий** | Retention, top-N, дубликаты — классика |
-| Optimization | Низкий | Больше для backend/DE |
+| JOINs (Q1) | **Высокий** | Спрашивают всегда |
+| Window functions (Q3) | **Высокий** | Отличает junior от intern |
+| GROUP BY + HAVING (Q2) | **Высокий** | Базовая аналитика |
+| Типичные задачи (Q7) | **Высокий** | Retention, top-N, дубликаты — классика |
+| Gaps & Islands (Q8) | **Высокий** | Продвинутая задача, впечатляет интервьюера |
+| CTE (Q4) | Средний | Для читаемости сложных запросов |
+| Подзапросы (Q5) | Средний | IN vs EXISTS — частый вопрос |
+| Conditional aggregation (Q9) | Средний | Anti-Join и NOT IN ловушка |
+| ClickHouse (Q10) | Средний | Для Яндекс / VK / аналитических ролей |
+| Optimization (Q6) | Низкий | Больше для backend/DE |
