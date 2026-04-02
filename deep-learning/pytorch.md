@@ -72,3 +72,55 @@ print(sum(p.numel() for p in model.parameters()))  # Количество пар
 ```
 
 > "nn.Module — базовый класс для всех моделей в PyTorch. Наследуешь, определяешь `__init__` (слои) и `forward` (как данные проходят). PyTorch автоматически отслеживает параметры для backward."
+
+---
+
+## Q16. "model.eval() vs torch.no_grad() — в чём разница?"
+
+> "model.eval() и torch.no_grad() делают **разные вещи** и **независимы**.
+>
+> **model.eval()** меняет поведение слоёв: Dropout перестаёт выключать нейроны, BatchNorm переключается на running statistics. Это про **корректность** предсказаний.
+>
+> **torch.no_grad()** отключает запись computational graph — PyTorch не хранит промежуточные активации. Это про **экономию VRAM** и скорость.
+>
+> Для inference нужны **оба**: eval() для правильного поведения, no_grad() для экономии памяти. Но можно eval() без no_grad() — например, при fine-tuning с выключенным Dropout."
+
+| | **model.eval()** | **torch.no_grad()** |
+|---|---|---|
+| **Что делает** | Меняет **поведение** слоёв | Отключает **вычисление** градиентов |
+| **Dropout** | Выключает | Не влияет |
+| **BatchNorm** | Использует running mean/std | Не влияет |
+| **Gradients** | **Не влияет!** | Отключает |
+| **VRAM** | Не экономит | Экономит |
+| **Обратное** | `model.train()` | Выход из `with`-блока |
+
+### Матрица 2x2: все комбинации
+
+| eval() | no_grad() | Результат |
+|---|---|---|
+| Нет | Нет | **Training**: Dropout ON, BN по batch, градиенты считаются |
+| **Да** | Нет | Dropout OFF, BN running stats, но градиенты считаются → VRAM зря |
+| Нет | **Да** | Dropout **ON** → предсказания **стохастичны**, но VRAM экономится |
+| **Да** | **Да** | **Правильный inference**: корректное поведение + экономия VRAM |
+
+```python
+model = nn.Sequential(nn.Linear(10, 64), nn.Dropout(0.5), nn.Linear(64, 1))
+x = torch.randn(1, 10)
+
+# Сценарий 1: eval() БЕЗ no_grad() — корректно, но жрёт VRAM
+model.eval()
+output = model(x)       # Dropout OFF — предсказание правильное
+output.backward()        # Можно! Используется при fine-tuning
+
+# Сценарий 2: no_grad() БЕЗ eval() — экономим VRAM, но результат неправильный!
+model.train()
+with torch.no_grad():
+    output = model(x)    # Dropout СЛУЧАЙНО выключает нейроны → шум
+
+# Сценарий 3: ПРАВИЛЬНЫЙ inference
+model.eval()
+with torch.no_grad():
+    output = model(x)    # Dropout OFF + нет графа + экономия VRAM
+```
+
+Источник: `interviews/companies/x5tech/X5TECH_TECHINTERVIEW_FEEDBACKRESULTS_RELEARNING.md`

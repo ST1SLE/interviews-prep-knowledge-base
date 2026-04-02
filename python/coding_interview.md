@@ -592,6 +592,31 @@ async def main():
 # asyncio.run(main())
 ```
 
+### Сравнение: threading vs asyncio vs multiprocessing
+
+| | **threading** | **asyncio** | **multiprocessing** |
+|---|---|---|---|
+| **Что это** | OS-потоки в одном процессе | Корутины в одном потоке | Отдельные OS-процессы |
+| **Единица** | Thread (OS-level) | Coroutine (Python object) | Process (OS-level) |
+| **GIL** | Блокирует CPU-bound код | Не релевантен (1 поток) | У каждого процесса свой GIL |
+| **Переключение** | OS решает (preemptive) | `await` (cooperative) | OS решает (preemptive) |
+| **Overhead** | ~8 MB стек/поток | ~1 KB/корутину | Полная копия процесса |
+| **Масштаб** | ~100-1000 потоков | ~100K+ корутин | ~число CPU ядер |
+| **Shared memory** | Да (нужны locks) | Нет нужды (single-threaded) | Нет (IPC: Queue, Pipe) |
+| **Когда** | I/O-bound + legacy sync | I/O-bound + много соединений | CPU-bound вычисления |
+
+### Decision tree
+
+```
+Задача I/O-bound (сеть, файлы, БД)?
+├── Много соединений (100+)? → asyncio
+├── Мало, или legacy sync-библиотека? → threading
+Задача CPU-bound (вычисления, обработка данных)?
+└── multiprocessing (или Celery для distributed)
+
+Мой стек: FastAPI (asyncio) → Celery workers (multiprocessing) → Redis (IPC)
+```
+
 ---
 
 ## Q7. "Типичные задачи на live coding"

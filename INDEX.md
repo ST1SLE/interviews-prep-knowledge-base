@@ -2,7 +2,7 @@
 
 Навигация по всем материалам для подготовки к ML/DS/AI Engineer Intern собеседованиям.
 
-**Всего: 112 вопросов + 10 exercises | 25 файлов | 9 доменов**
+**Всего: ~125 вопросов + 10 exercises | 27 файлов | 9 доменов**
 
 ---
 
@@ -35,9 +35,9 @@
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
 | [deep-learning/fundamentals.md](deep-learning/fundamentals.md) | Нейросети, backprop, активации, loss functions | 4 |
-| [deep-learning/training.md](deep-learning/training.md) | Optimizers, gradients, regularization, batch norm, LR | 5 |
+| [deep-learning/training.md](deep-learning/training.md) | Optimizers, gradients, Dropout (inverted), BatchNorm, LayerNorm, LR | 7 |
 | [deep-learning/architectures.md](deep-learning/architectures.md) | CNN, RNN/LSTM, transfer learning, выбор архитектуры | 4 |
-| [deep-learning/pytorch.md](deep-learning/pytorch.md) | Training loop, nn.Module | 2 |
+| [deep-learning/pytorch.md](deep-learning/pytorch.md) | Training loop, nn.Module, model.eval() vs no_grad() | 3 |
 | [deep-learning/transformers.md](deep-learning/transformers.md) | Self-Attention, positional encoding, LoRA, ViT | 5 |
 
 ## Generative AI & Agents
@@ -45,7 +45,7 @@
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
 | [genai/agent_fundamentals.md](genai/agent_fundamentals.md) | Agent vs LLM, ReAct, память, CoT vs Tool Use | 4 |
-| [genai/tool_use.md](genai/tool_use.md) | Function calling, tool logic, structured output, MCP | 4 |
+| [genai/tool_use.md](genai/tool_use.md) | Function calling, tool logic, structured output, MCP (architecture, capabilities) | 4 |
 | [genai/advanced_patterns.md](genai/advanced_patterns.md) | Фреймворки, multi-agent, agentic RAG, voice AI | 4 |
 | [genai/production.md](genai/production.md) | Guardrails, evaluation, error handling | 3 |
 | [genai/rag_systems.md](genai/rag_systems.md) | RAG architecture, chunking, vector search, evaluation | 5 |
@@ -60,7 +60,8 @@
 
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
-| [python/coding_interview.md](python/coding_interview.md) | Data structures, algorithms, OOP, decorators, generators, GIL, memory, NumPy, typing | 12 |
+| [python/coding_interview.md](python/coding_interview.md) | Data structures, algorithms, OOP, decorators, generators, GIL + concurrency comparison, memory, NumPy, typing | 12 |
+| [python/algorithms_dp.md](python/algorithms_dp.md) | DP anti-overengineering, 5 паттернов (Linear, Knapsack, String, Decision, Counting) | 3 |
 
 ## SQL
 
@@ -73,6 +74,7 @@
 | Файл | Содержание | Вопросов |
 |------|-----------|----------|
 | [system-design/ml_systems.md](system-design/ml_systems.md) | Pipelines, serving, monitoring, A/B, scaling, RecSys, fraud, MLOps | 10 |
+| [system-design/docker.md](system-design/docker.md) | Dockerfile, Compose, multi-stage build, кэширование, типичные ошибки | 3 |
 
 ## Soft Skills
 

@@ -65,10 +65,59 @@ tools = [{
 
 ## Q13. "Что такое MCP (Model Context Protocol)?"
 
-> "MCP — открытый протокол (Anthropic, 2024) для подключения инструментов к LLM. Стандартизирует формат: как описать tool, как вызвать, как вернуть результат. До MCP каждый фреймворк имел свой формат → несовместимость.
+> "MCP — открытый протокол (Anthropic, 2024) для подключения инструментов к LLM. Архитектура: MCP Server предоставляет tools, resources и prompts. MCP Client — агент или IDE — подключается к серверам по JSON-RPC. Ключевое отличие от function calling: единый стандарт, динамическое обнаружение capabilities, переиспользование серверов. Аналогия — USB для AI-агентов.
 >
-> MCP Server предоставляет tools (например: 'файловая система', 'база данных', 'Jira'). MCP Client (агент) подключается к серверам и использует их инструменты.
->
-> Аналогия: USB для AI-агентов. Раньше каждое устройство имело свой разъём, USB стандартизировал. MCP делает то же для tool use.
->
-> В hr-breaker я использую FastMCP — Python-реализацию MCP для интеграции инструментов."
+> В hr-breaker я использую FastMCP для интеграции инструментов оптимизации резюме."
+
+### Архитектура
+
+```
+┌─────────────┐     JSON-RPC      ┌─────────────┐
+│  MCP Client │ ◄───────────────► │  MCP Server  │
+│  (Агент/IDE)│                   │  (Провайдер) │
+└─────────────┘                   └─────────────┘
+     Claude Code                    Файловая система
+     Cursor                         База данных
+     Свой агент                     Jira / Slack API
+```
+
+**Транспорт:** JSON-RPC 2.0 поверх stdio (локально) или SSE/HTTP (удалённо).
+
+### 3 типа capabilities
+
+| Capability | Кто решает использовать | Пример |
+|---|---|---|
+| **Tools** | LLM (модель решает когда вызвать) | `read_file(path)`, `query_db(sql)` |
+| **Resources** | Клиент/пользователь (контекст) | Файлы, записи БД, документы |
+| **Prompts** | Пользователь (шаблоны) | Шаблон code review, анализа |
+
+### MCP vs Function Calling
+
+| | **Function Calling** | **MCP** |
+|---|---|---|
+| **Стандарт** | Каждый провайдер свой | Единый протокол |
+| **Discovery** | Tools зашиты в prompt | Server объявляет capabilities |
+| **Переиспользование** | Переписываешь под каждый фреймворк | Один server → любой client |
+| **Композиция** | Один список tools | Несколько серверов |
+
+### Пример: FastMCP Server
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP("order-service")
+
+@mcp.tool()
+def check_order_status(order_id: str) -> str:
+    """Проверить статус заказа по номеру"""
+    return f"Заказ {order_id}: доставляется, ETA 2 часа"
+
+@mcp.resource("orders://{order_id}")
+def get_order(order_id: str) -> str:
+    """Получить полную информацию о заказе"""
+    return f"Order {order_id}: items=[...], total=1500₽"
+
+mcp.run()
+```
+
+Источник: `interviews/companies/x5tech/X5TECH_TECHINTERVIEW_FEEDBACKRESULTS_RELEARNING.md`

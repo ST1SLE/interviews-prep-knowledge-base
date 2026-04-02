@@ -31,7 +31,7 @@
 
 | Метод | Как работает | Когда |
 |-------|-------------|-------|
-| **Dropout** | Случайно выключаем $p$% нейронов при обучении | Default, обычно $p = 0.1 \text{–} 0.5$ |
+| **Dropout** | Inverted dropout: обнуляем $p$% нейронов, остальные $\times \frac{1}{1-p}$ | Default, $p = 0.1 \text{–} 0.5$ |
 | **Weight Decay** (L2) | Штраф $\lambda \lVert w \rVert^2$ к loss | AdamW (decoupled) |
 | **Batch Norm** | Нормализация активаций между слоями | Ускоряет обучение + регуляризирует |
 | **Data Augmentation** | Рандомные трансформации данных (flip, crop, rotate) | Для изображений |
@@ -49,6 +49,71 @@
 $$\hat{x} = \frac{x - \mu_{\text{batch}}}{\sqrt{\sigma^2_{\text{batch}} + \varepsilon}}$$
 
 $$y = \gamma \cdot \hat{x} + \beta$$
+
+---
+
+## Q11. "Dropout — как работает и почему?"
+
+> "Dropout при обучении случайно обнуляет нейроны с вероятностью p и масштабирует оставшиеся на $\frac{1}{1-p}$ — это **inverted dropout**, именно его реализует PyTorch. Работает по двум причинам: каждый forward pass — случайная подсеть, полная сеть при inference аппроксимирует ансамбль. Второе — предотвращает ко-адаптацию нейронов. При inference dropout выключается через `model.eval()`."
+
+```python
+def manual_dropout(x, p=0.3, training=True):
+    if not training:
+        return x  # Inference: все нейроны, без масштабирования
+    mask = (torch.rand_like(x) > p).float()
+    return x * mask / (1 - p)  # Масштабируем чтобы E[output] = x
+```
+
+| Режим | Dropout | Масштабирование |
+|---|---|---|
+| `model.train()` | Нейроны обнуляются с вероятностью p | Выход $\times \frac{1}{1-p}$ |
+| `model.eval()` | **Все** нейроны активны | Без масштабирования |
+
+Почему работает:
+1. **Ансамбль подсетей** — при N нейронах экспоненциальное количество подсетей ($2^N$). Полная сеть при inference — аппроксимация ансамблевого среднего.
+2. **Ко-адаптация** — без Dropout нейроны "полагаются" друг на друга. Dropout заставляет каждый быть полезным самостоятельно.
+
+---
+
+## Q12. "LayerNorm — зачем и чем отличается от BatchNorm?"
+
+> "LayerNorm нормализует вектор каждого токена **независимо** — считает mean и std по feature dimension. В отличие от BatchNorm не зависит от других примеров в batch'е. Это критично для Transformers: batch-independent (batch_size=1), variable-length sequences, стабильно при autoregressive generation. В современных Transformers используется Pre-LN — LayerNorm стоит **до** attention и **до** FFN."
+
+$$\text{LayerNorm}(x) = \gamma \cdot \frac{x - \mu}{\sqrt{\sigma^2 + \varepsilon}} + \beta$$
+
+где $\mu$, $\sigma^2$ считаются по **feature dimension** (не по batch).
+
+### 3 причины замены BatchNorm в Transformers
+
+| # | Причина | Подробности |
+|---|---------|-------------|
+| 1 | **Batch-independent** | BN при batch_size=1 — шумные статистики. LN работает без проблем |
+| 2 | **Variable-length sequences** | BN по позициям бессмысленен (позиция 5 в разных предложениях — разная семантика) |
+| 3 | **Autoregressive generation** | Токены по одному, batch_size=1. BN не имеет смысла |
+
+### Pre-LN vs Post-LN
+
+```
+Post-LN (оригинальный Transformer, 2017):
+  x → Attention → Add(x + ...) → LayerNorm → FFN → Add → LayerNorm
+  Проблема: нестабильные градиенты, нужен warmup
+
+Pre-LN (GPT-2+, современный стандарт):
+  x → LayerNorm → Attention → Add(x + ...) → LayerNorm → FFN → Add
+  Плюс: стабильнее, не нужен warmup
+```
+
+### BatchNorm vs LayerNorm
+
+| | **BatchNorm** | **LayerNorm** |
+|---|---|---|
+| Нормализует по | Batch dimension | Feature dimension |
+| Зависит от батча | Да | Нет |
+| Running stats | Да (нужны при eval) | Нет |
+| Поведение при eval() | Переключается на running stats | Не меняется |
+| Где используют | CNN, MLP (CV) | Transformers (NLP, LLM) |
+
+Источник: `interviews/companies/x5tech/X5TECH_TECHINTERVIEW_FEEDBACKRESULTS_RELEARNING.md`
 
 ---
 

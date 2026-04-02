@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "updated": "2026-03-19",
-  "total_files": 25,
-  "total_questions": 112,
+  "updated": "2026-04-02",
+  "total_files": 27,
+  "total_questions": 125,
   "total_exercises": 10,
   "domains": {
     "math-and-stats": {
@@ -25,16 +25,16 @@
     "deep-learning": {
       "files": [
         {"path": "deep-learning/fundamentals.md", "size": 3652, "questions": 4, "status": "complete"},
-        {"path": "deep-learning/training.md", "size": 4840, "questions": 5, "status": "complete"},
+        {"path": "deep-learning/training.md", "size": 9175, "questions": 7, "status": "complete"},
         {"path": "deep-learning/architectures.md", "size": 5067, "questions": 4, "status": "complete"},
-        {"path": "deep-learning/pytorch.md", "size": 2487, "questions": 2, "status": "complete"},
+        {"path": "deep-learning/pytorch.md", "size": 5442, "questions": 3, "status": "complete"},
         {"path": "deep-learning/transformers.md", "size": 13426, "questions": 5, "status": "complete"}
       ]
     },
     "genai": {
       "files": [
         {"path": "genai/agent_fundamentals.md", "size": 4628, "questions": 4, "status": "complete"},
-        {"path": "genai/tool_use.md", "size": 4870, "questions": 4, "status": "complete"},
+        {"path": "genai/tool_use.md", "size": 6942, "questions": 4, "status": "complete"},
         {"path": "genai/advanced_patterns.md", "size": 4830, "questions": 4, "status": "complete"},
         {"path": "genai/production.md", "size": 3776, "questions": 3, "status": "complete"},
         {"path": "genai/rag_systems.md", "size": 13358, "questions": 5, "status": "complete"}
@@ -47,7 +47,8 @@
     },
     "python": {
       "files": [
-        {"path": "python/coding_interview.md", "size": 43001, "questions": 12, "status": "complete"}
+        {"path": "python/coding_interview.md", "size": 44553, "questions": 12, "status": "complete"},
+        {"path": "python/algorithms_dp.md", "size": 8795, "questions": 3, "status": "complete"}
       ]
     },
     "sql": {
@@ -57,13 +58,20 @@
     },
     "system-design": {
       "files": [
-        {"path": "system-design/ml_systems.md", "size": 32406, "questions": 10, "status": "complete"}
+        {"path": "system-design/ml_systems.md", "size": 32406, "questions": 10, "status": "complete"},
+        {"path": "system-design/docker.md", "size": 8827, "questions": 3, "status": "complete"}
       ]
     },
     "soft-skills": {
       "files": [
         {"path": "soft-skills/behavioral.md", "size": 11588, "questions": 6, "status": "complete"}
       ]
+    }
+  },
+  "processed_files": {
+    "interviews/companies/x5tech/X5TECH_TECHINTERVIEW_FEEDBACKRESULTS_RELEARNING.md": {
+      "size_bytes": 47406,
+      "processed_at": "2026-04-02"
     }
   }
 }
