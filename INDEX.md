@@ -82,6 +82,18 @@
 |------|-----------|----------|
 | [soft-skills/behavioral.md](soft-skills/behavioral.md) | STAR framework, technical communication, trade-offs, "why ML" | 6 |
 
+## Spec-Driven Development (SDD)
+
+| File | Contents | Type |
+|------|----------|------|
+| [sdd/fundamentals.md](sdd/fundamentals.md) | Why SDD, paradigm shift, alignment levels, unified vs fragmented topologies | Concepts |
+| [sdd/setup.md](sdd/setup.md) | OpenSpec installation, init, project.md, AGENTS.md | Setup guide |
+| [sdd/core_lifecycle.md](sdd/core_lifecycle.md) | Propose → Apply → Archive full walkthrough with exercises | Core workflow |
+| [sdd/cheatsheet.md](sdd/cheatsheet.md) | All commands, directory structure, delta artifacts, schema types | Reference |
+| [sdd/brownfield.md](sdd/brownfield.md) | Legacy integration, Explore→Continue, Repomix MCP, greenfield zones | Advanced |
+| [sdd/custom_schemas.md](sdd/custom_schemas.md) | Schema engineering, minimalist & EDA schemas, custom pipelines | Advanced |
+| [sdd/orchestration.md](sdd/orchestration.md) | Git WorkTrees, SubAgents, CI/CD gates, MCP sync, contract testing | Advanced |
+
 ---
 
 ## Practice Schedule
