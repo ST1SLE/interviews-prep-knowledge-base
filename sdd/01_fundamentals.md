@@ -11,7 +11,7 @@ Why SDD exists, the paradigm shift from vibe coding, alignment levels, and archi
 **Why it fails at scale:**
 
 - **Context loss.** LLMs rapidly lose context across expansive codebases. Without rigid external constraints, they forget earlier architectural decisions, misinterpret vague prompts, and produce inconsistent implementations.
-- **Architectural drift.** A pivotal MSR'26 study analyzed 807 GitHub repositories using AI coding assistants (Cursor AI, etc.). Finding: while unconstrained AI generation increased initial velocity, it was invariably accompanied by persistent, compounding code complexity and architectural drift.
+- **Architectural drift.** Empirical observations across projects using AI coding assistants (Cursor AI, etc.) consistently show that unconstrained AI generation increases initial velocity but leads to persistent, compounding code complexity and architectural drift over time.
 - **Code becomes the spec.** Without an explicit specification, the codebase itself becomes the de-facto specification — a brittle, inflexible artifact that is exceptionally difficult to decipher, debug, and safely refactor.
 - **Breaking contracts.** AI-generated implementations routinely break API integration contracts or introduce security anti-patterns that only surface during production runtime.
 
@@ -61,7 +61,7 @@ SDD implementation exists on a continuum — three distinct levels of how seriou
 
 ## 4. Unified vs Fragmented Topologies
 
-As SDD frameworks emerged (30+ tools: Spec Kit, OpenSpec, BMAD, Intent, PromptX, Tessl, etc.), two architectural topologies diverged:
+As SDD frameworks emerged (Spec Kit, OpenSpec, BMAD, and others), two architectural topologies diverged:
 
 ### Fragmented Topology (e.g., GitHub Spec Kit)
 
@@ -106,3 +106,7 @@ Three principles that define the SDD mindset:
 4. Look at any existing spec files in `openspec/specs/` — how are they structured?
 
 **Success criteria:** You can articulate (a) why vibe coding fails at scale, (b) the difference between the three alignment levels, and (c) why unified topology scales better than fragmented.
+
+---
+
+**Next:** [02_setup.md](02_setup.md) — Installation, initialization, and project introspection

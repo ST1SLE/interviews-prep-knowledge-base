@@ -28,21 +28,21 @@ openspec/
 ├── specs/           ← Source of truth (permanent, evolving)
 │   └── <capability>.md
 ├── changes/         ← Active proposals (transient, cleared after archive)
-│   └── <change-name>/
-│       ├── proposal.md
-│       ├── specs.md
-│       ├── design.md
-│       └── tasks.md
-├── archive/         ← Completed proposals (immutable audit trail)
-│   └── <change-name>/
-│       ├── proposal.md
-│       ├── specs.md
-│       ├── design.md
-│       └── tasks.md
+│   ├── <change-name>/
+│   │   ├── proposal.md
+│   │   ├── specs.md
+│   │   ├── design.md
+│   │   └── tasks.md
+│   └── archive/     ← Completed proposals (immutable audit trail)
+│       └── YYYY-MM-DD-<change-name>/
+│           ├── proposal.md
+│           ├── specs.md
+│           ├── design.md
+│           └── tasks.md
 ├── schemas/         ← Custom workflow schemas (optional)
 │   └── schema.yaml
-├── project.md       ← Project fingerprint (~250 lines)
-└── AGENTS.md        ← Context checklist for AI agents
+├── config.yaml      ← OpenSpec configuration
+└── AGENTS.md        ← Context checklist + project fingerprint
 ```
 
 ---
@@ -95,8 +95,7 @@ Used in `specs.md` to denote changes to existing capabilities:
 
 | File | Purpose | When to update |
 |------|---------|---------------|
-| `project.md` | AI's understanding of your project (stack, conventions, constraints) | After major architectural changes |
-| `AGENTS.md` | Forces AI to read specs before writing code | Rarely — usually set once at init |
+| `AGENTS.md` | Context checklist + project fingerprint (forces AI to read specs before writing code) | After major architectural changes |
 | `config.yaml` | Root-level OpenSpec configuration | When adding custom schemas |
 | `schema.yaml` | Per-project schema definition (artifact types, templates, dependencies) | When customizing the pipeline |
 
@@ -120,7 +119,7 @@ For customizing the artifact pipeline (advanced — see `openspec schema init`):
 |--------|-------------------|------------|----------|
 | **Minimalist** | specs.md, tasks.md | Given/When/Then acceptance testing | Low-risk changes, UI tweaks, prototyping |
 | **Default** | proposal.md, specs.md, design.md, tasks.md | Standard verification checklist + unit tests | Standard feature development |
-| **Event-Driven** | Event Storming, Event Modeling (Mermaid.js), asyncapi.yaml, tasks.md | Rigid AsyncAPI YAML contract validation | Microservices, Kafka/RabbitMQ, distributed systems |
+| **Custom (e.g., EDA)** | You define (e.g., event_storming.md, asyncapi.yaml, tasks.md) | You define (e.g., AsyncAPI contract validation) | Domain-specific (microservices, ML, data pipelines) |
 
 Schema resolution order: project-level `openspec/schemas/` overrides global `~/.openspec/schemas/`.
 
@@ -139,11 +138,11 @@ Schema resolution order: project-level `openspec/schemas/` overrides global `~/.
 
 ## Brownfield Quick Reference
 
-For legacy/undocumented codebases — see [brownfield.md](brownfield.md) for full guide:
+For legacy/undocumented codebases — see [04_brownfield.md](04_brownfield.md) for full guide:
 
 ```
 1. /opsx:explore              → AI investigates legacy code, maps dependencies, NO changes
-   (use with Repomix MCP for token-optimized codebase packaging)
+   (pair with Repomix for token-optimized codebase packaging on large repos)
 
 2. /opsx:continue             → Manually advance explore results through propose flow
    (one artifact at a time: proposal → specs → design → tasks)
@@ -155,7 +154,7 @@ For legacy/undocumented codebases — see [brownfield.md](brownfield.md) for ful
 
 ## CI/CD Quick Reference
 
-For automated quality gates — see [orchestration.md](orchestration.md) for full guide:
+For automated quality gates — see [06_orchestration.md](06_orchestration.md) for full guide:
 
 ```yaml
 # GitHub Actions example
@@ -171,9 +170,9 @@ Rejects PRs with missing, malformed, or incomplete specification artifacts.
 
 | # | Module | Focus |
 |---|--------|-------|
-| 1 | [fundamentals.md](fundamentals.md) | Why SDD, paradigm shift, alignment levels |
-| 2 | [setup.md](setup.md) | Installation, init, project introspection |
-| 3 | [core_lifecycle.md](core_lifecycle.md) | Propose → Apply → Archive (core workflow) |
-| 4 | [brownfield.md](brownfield.md) | Legacy integration, Explore → Continue |
-| 5 | [custom_schemas.md](custom_schemas.md) | Schema engineering, minimalist & EDA |
-| 6 | [orchestration.md](orchestration.md) | WorkTrees, CI/CD, MCP, contract testing |
+| 1 | [01_fundamentals.md](01_fundamentals.md) | Why SDD, paradigm shift, alignment levels |
+| 2 | [02_setup.md](02_setup.md) | Installation, init, project introspection |
+| 3 | [03_core_lifecycle.md](03_core_lifecycle.md) | Propose → Apply → Archive (core workflow) |
+| 4 | [04_brownfield.md](04_brownfield.md) | Legacy integration, Explore → Continue |
+| 5 | [05_custom_schemas.md](05_custom_schemas.md) | Schema engineering, minimalist & custom |
+| 6 | [06_orchestration.md](06_orchestration.md) | WorkTrees, CI/CD, MCP, contract testing |

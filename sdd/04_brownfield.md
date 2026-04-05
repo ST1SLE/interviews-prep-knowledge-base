@@ -2,13 +2,13 @@
 
 How to apply SDD to existing, undocumented codebases without triggering context overload or hallucination.
 
-**Prerequisites:** Complete [fundamentals.md](fundamentals.md), [setup.md](setup.md), and [core_lifecycle.md](core_lifecycle.md). You should be comfortable with the Propose→Apply→Archive cycle.
+**Prerequisites:** Complete [01_fundamentals.md](01_fundamentals.md), [02_setup.md](02_setup.md), and [03_core_lifecycle.md](03_core_lifecycle.md). You should be comfortable with the Propose→Apply→Archive cycle.
 
 ---
 
 ## The Problem
 
-The core Propose→Apply→Archive cycle from [core_lifecycle.md](core_lifecycle.md) assumes you're working on a greenfield project or one that already has specs. But most real-world codebases are **brownfield** — legacy code with no documentation, no specs, and implicit architectural decisions buried across thousands of files.
+The core Propose→Apply→Archive cycle from [03_core_lifecycle.md](03_core_lifecycle.md) assumes you're working on a greenfield project or one that already has specs. But most real-world codebases are **brownfield** — legacy code with no documentation, no specs, and implicit architectural decisions buried across thousands of files.
 
 Naively asking an LLM to "reverse-engineer this entire codebase into specifications" will:
 - **Blow the context window** — large codebases exceed token limits
@@ -64,22 +64,22 @@ After all 4 artifacts are approved, you proceed with the normal Apply → Archiv
 
 ---
 
-## Repomix MCP: Token-Optimized Codebase Packaging
+## Repomix: Token-Optimized Codebase Packaging (Complementary Tool)
 
-Large legacy codebases won't fit in an LLM's context window raw. **Repomix MCP** is a specialized tool that packages the codebase into a token-optimized format suitable for AI ingestion.
+Large legacy codebases won't fit in an LLM's context window raw. **[Repomix](https://github.com/yamadashy/repomix)** is a separate, standalone tool that packages codebases into a token-optimized format suitable for AI ingestion. It is **not part of OpenSpec** but pairs well with the brownfield workflow.
 
 ### What it does
 
 - Compresses the codebase representation without losing structural information
 - Strips irrelevant content (build artifacts, node_modules, etc.)
 - Organizes code into a format the AI can efficiently parse
-- Integrates with OpenSpec via Model Context Protocol (MCP)
+- Available as a CLI tool and as an MCP server for AI assistants
 
-### How to use it
+### How to use it with OpenSpec
 
-1. Set up the Repomix MCP server in your AI assistant's configuration
-2. During `/opsx:explore`, the AI uses Repomix to ingest the legacy codebase
-3. The compressed representation stays within context window limits while preserving architectural structure
+1. Install Repomix: `npm install -g repomix` (or set up its MCP server in your AI assistant)
+2. Before `/opsx:explore`, use Repomix to package the legacy codebase into a compressed snapshot
+3. Feed the compressed representation to the AI alongside the explore command
 
 ### When you need it
 
@@ -169,9 +169,9 @@ Use one of your existing projects (e.g., random-coffee-bot or text2brainrot):
 |---------|-------------|-----|
 | Trying to spec the entire legacy system at once | Context overflow, hallucination, useless output | Bound your scope to the component you're modifying |
 | Skipping Explore and going straight to Propose | Specs will be based on assumptions, not reality | Always Explore unfamiliar code first |
-| Not using Repomix for large codebases | Context window limits cause truncation and hallucination | Set up Repomix MCP for codebases > 50 files |
+| Not using Repomix for large codebases | Context window limits cause truncation and hallucination | Use Repomix to package large codebases before exploring |
 | Specifying code nobody touches | Wasted effort, stale specs | Focus on hotspots — most modified, highest risk |
 
 ---
 
-**Next:** [custom_schemas.md](custom_schemas.md) — Tailoring the SDD pipeline with custom schemas
+**Next:** [05_custom_schemas.md](05_custom_schemas.md) — Tailoring the SDD pipeline with custom schemas

@@ -2,7 +2,7 @@
 
 The operational heart of Spec-Driven Development. This module walks through the three-phase delta workflow with hands-on exercises.
 
-**Prerequisites:** Complete [fundamentals.md](fundamentals.md) and [setup.md](setup.md) first. You need a project with OpenSpec initialized.
+**Prerequisites:** Complete [01_fundamentals.md](01_fundamentals.md) and [02_setup.md](02_setup.md) first. You need a project with OpenSpec initialized.
 
 ---
 
@@ -146,8 +146,8 @@ This is the critical difference from vibe coding: the spec constrains the code, 
 
 Two critical actions:
 
-1. **Move to history:** `openspec/changes/<name>/` → `openspec/archive/<name>/`
-   - Creates an immutable audit trail
+1. **Move to history:** `openspec/changes/<name>/` → `openspec/changes/archive/YYYY-MM-DD-<name>/`
+   - Creates an immutable, timestamped audit trail
    - Preserves the exact context of how and why decisions were made
    - Never modified after archiving
 
@@ -170,15 +170,15 @@ Always archive immediately after a successful Apply phase.
 ### After Archiving
 
 Verify:
-- `openspec/changes/` should be empty (or have only other active proposals)
+- `openspec/changes/` should have no active proposals (only `archive/` subdirectory)
 - `openspec/specs/` should include the new capability
-- `openspec/archive/` should contain the completed proposal with all 4 artifacts
+- `openspec/changes/archive/` should contain the completed proposal with all 4 artifacts
 
 ---
 
 ## Full Walkthrough: Exercise 1 — New Feature
 
-Using the project you set up in [setup.md](setup.md):
+Using the project you set up in [02_setup.md](02_setup.md):
 
 ### Step 1: Propose
 
@@ -232,9 +232,9 @@ Watch the agent:
 ### Step 6: Confirm
 
 ```bash
-ls openspec/changes/     # should be empty
-ls openspec/specs/       # should contain health check capability
-ls openspec/archive/     # should contain the completed proposal
+ls openspec/changes/           # should have only archive/ subdirectory
+ls openspec/specs/             # should contain health check capability
+ls openspec/changes/archive/   # should contain the completed proposal
 ```
 
 ---
@@ -286,9 +286,11 @@ Same flow as Exercise 1.
 **Success criteria for this module:**
 - Completed two full Propose→Apply→Archive cycles (new feature + modification)
 - `openspec/specs/` reflects both the health check capability and the version field
-- `openspec/archive/` contains both historical proposals
+- `openspec/changes/archive/` contains both historical proposals
 - Can explain what each phase does, why the order matters, and what happens if you skip a phase
 
 ---
+
+**Next:** [04_brownfield.md](04_brownfield.md) — Applying SDD to existing, undocumented codebases
 
 **Quick reference:** [cheatsheet.md](cheatsheet.md)

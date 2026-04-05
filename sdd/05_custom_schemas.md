@@ -116,11 +116,11 @@ Implementation tasks are derived directly from these acceptance criteria — eac
 
 ---
 
-## Built-In Schema: Event-Driven Architecture (EDA)
+## Custom Schema Example: Event-Driven Architecture (EDA)
 
-Purpose-built for complex, asynchronous distributed systems — message brokers (Kafka, RabbitMQ), microservices, event sourcing.
+This is **not a built-in schema** — it's an example of what you can build with the custom schema system. Purpose-built for complex, asynchronous distributed systems — message brokers (Kafka, RabbitMQ), microservices, event sourcing.
 
-### What it generates
+### What it would generate
 
 A specialized artifact chain with strict ordering:
 
@@ -251,8 +251,7 @@ Templates are Markdown files with placeholder sections that the AI must fill:
 |--------|-----------|------------|----------|
 | **Minimalist** | specs.md, tasks.md | Given/When/Then acceptance tests | Low-risk, prototyping, bug fixes |
 | **Default** | proposal.md, specs.md, design.md, tasks.md | Standard checklist + unit tests | General feature development |
-| **Event-Driven** | event_storming.md, event_modeling.md, asyncapi.yaml, tasks.md | Rigid AsyncAPI contract validation | Microservices, message brokers |
-| **Custom** | You define | You define | Domain-specific workflows (ML, data pipelines, etc.) |
+| **Custom (e.g., EDA)** | You define (e.g., event_storming.md, asyncapi.yaml, tasks.md) | You define (e.g., AsyncAPI contract validation) | Domain-specific workflows (microservices, ML, data pipelines, etc.) |
 
 ---
 
@@ -295,4 +294,4 @@ Templates are Markdown files with placeholder sections that the AI must fill:
 
 ---
 
-**Next:** [orchestration.md](orchestration.md) — Parallel execution, CI/CD gates, and MCP integration
+**Next:** [06_orchestration.md](06_orchestration.md) — Parallel execution, CI/CD gates, and MCP integration

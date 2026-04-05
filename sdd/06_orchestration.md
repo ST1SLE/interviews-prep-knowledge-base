@@ -8,7 +8,7 @@ Git WorkTrees for parallel development, CI/CD quality gates, MCP-based backlog s
 
 ## 1. The Parallelism Problem
 
-The unified source-of-truth architecture (from [fundamentals.md](fundamentals.md)) creates a concurrency challenge: if multiple developers or AI agents propose changes simultaneously, the single specification library can suffer merge conflicts and architectural divergence.
+The unified source-of-truth architecture (from [01_fundamentals.md](01_fundamentals.md)) creates a concurrency challenge: if multiple developers or AI agents propose changes simultaneously, the single specification library can suffer merge conflicts and architectural divergence.
 
 OpenSpec solves this through **Git WorkTrees** — an advanced Git feature that checks out multiple branches simultaneously across separate physical directories.
 
@@ -330,4 +330,4 @@ The spec → contract → test chain ensures: spec is written first, contract is
 
 ---
 
-**Reference:** [cheatsheet.md](cheatsheet.md)
+**Quick reference:** [cheatsheet.md](cheatsheet.md)
