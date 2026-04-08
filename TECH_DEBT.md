@@ -1,6 +1,6 @@
 # Knowledge Base — Tech Debt
 
-Трекер пустых/неготовых материалов в KB. Обновлено: 2026-03-19.
+Трекер пустых/неготовых материалов в KB. Обновлено: 2026-04-08.
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Всего файлов | 25 |
-| Готово (полный контент) | 25 |
+| Всего файлов | 26 |
+| Готово (полный контент) | 26 |
 | Скелеты (только TODO) | 0 |
-| Готовых вопросов/упражнений | 112 Q + 10 Ex |
+| Готовых вопросов/упражнений | 129 Q + 10 Ex |
 | Пустых вопросов | **0** |
 | Покрытие | **100%** |
 
@@ -92,7 +92,48 @@
 | Q9 | Bagging vs Boosting | MED | medium | DONE |
 | Q10 | Open-ended: предсказание оттока (Churn) | MED | medium | DONE |
 
-### 6. `deep-learning/transformers.md` — 5 вопросов (NEW)
+### 6. `deep-learning/nlp_patterns.md` — 11 вопросов (NEW)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q1 | Предобработка текста — базовый pipeline | LOW | short | DONE |
+| Q2 | Vocabulary — маппинг токенов в индексы | MED | medium | DONE |
+| Q3 | DataLoader для текстов переменной длины | MED | medium | DONE |
+| Q4 | RNN для языкового моделирования | LOW | medium | DONE |
+| Q5 | LSTM для классификации текста | MED | medium | DONE |
+| Q6 | Temperature sampling | **HIGH** | medium | DONE |
+| Q7 | HuggingFace transformers — загрузка и inference | **HIGH** | medium | DONE |
+| Q8 | Chat templates для instruct-моделей | **HIGH** | medium | DONE |
+| Q9 | vLLM — быстрый inference и guided decoding | MED | medium | DONE |
+| Q10 | Zero-shot vs Few-shot prompting | MED | short | DONE |
+| Q11 | RNN vs LSTM vs GRU — отличия в PyTorch | **HIGH** | medium | DONE |
+
+### 7. `deep-learning/pytorch.md` — 8 вопросов (+4 new)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q17 | Autograd: clone vs detach | MED | medium | DONE |
+| Q18 | CNN в PyTorch: Conv2d и формула размера | **HIGH** | medium | DONE |
+| Q19 | Инициализация весов — Xavier vs He | MED | short | DONE |
+| Q20 | Инспекция модели — параметры и граф | LOW | short | DONE |
+
+### 8. `math-and-stats/probability.md` — 7 вопросов (+4 new)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q15 | Метод обратной функции распределения (Inverse CDF) | MED | medium | DONE |
+| Q16 | Преобразование Бокса-Мюллера | MED | medium | DONE |
+| Q17 | Тяжёлые хвосты — распознавание | MED | medium | DONE |
+| Q18 | scipy.stats — краткий справочник | LOW | short | DONE |
+
+### 9. `math-and-stats/applied_stats.md` — 7 вопросов (+2 new)
+
+| Q | Тема | Приоритет | Объём | Статус |
+|---|------|-----------|-------|--------|
+| Q14 | Оценка размера выборки (Монте-Карло) | MED | medium | DONE |
+| Q15 | Марковские цепи и эффективный размер выборки | MED | medium | DONE |
+
+### 10. `deep-learning/transformers.md` — 5 вопросов
 
 | Q | Тема | Приоритет | Объём | Статус |
 |---|------|-----------|-------|--------|

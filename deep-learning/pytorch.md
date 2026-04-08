@@ -1,6 +1,6 @@
 # PyTorch API — Interview Prep
 
-Training loop и nn.Module для собеседования ML/DS/AI Engineer Intern.
+Training loop, nn.Module, autograd, CNN patterns для собеседования ML/DS/AI Engineer Intern.
 
 ---
 
@@ -123,4 +123,97 @@ with torch.no_grad():
     output = model(x)    # Dropout OFF + нет графа + экономия VRAM
 ```
 
-Источник: `interviews/companies/x5tech/X5TECH_TECHINTERVIEW_FEEDBACKRESULTS_RELEARNING.md`
+---
+
+## Q17. "Autograd: clone vs detach — когда что?"
+
+> "В PyTorch тензоры связаны через computation graph. При копировании важно понимать, что сохраняет связь с графом, а что разрывает. `y = x` — не копирует данные, тот же граф. `y = x.clone()` — копирует данные, но остаётся связан с графом. `y = x.detach().clone()` — полная независимая копия, отвязанная от графа."
+
+| Способ | Данные | Граф | Независимость |
+|--------|--------|------|---------------|
+| `y = x` | общие | общий | нет |
+| `y = x.clone()` | копия | связан | частичная |
+| `y = x.detach().clone()` | копия | отвязан | полная |
+
+### Высшие производные через autograd.grad
+
+```python
+grad = torch.autograd.grad(outputs=f, inputs=x, create_graph=True)[0]
+grad2 = torch.autograd.grad(outputs=grad, inputs=x, create_graph=True)[0]
+```
+
+### retain_grad() для промежуточных тензоров
+
+```python
+y = x ** 2
+y.retain_grad()  # без этого y.grad будет None после backward
+loss = y.sum()
+loss.backward()
+y.grad  # теперь доступен
+```
+
+---
+
+## Q18. "CNN в PyTorch: Conv2d и формула выходного размера"
+
+> "Для CNN критично уметь вычислять размеры тензоров после свёрток и пулингов — иначе nn.Linear после Flatten получит неправильный input_size."
+
+$$H_{\text{out}} = \left\lfloor \frac{H - K + 2P}{S} \right\rfloor + 1$$
+
+```python
+model = nn.Sequential(
+    nn.Conv2d(1, 32, kernel_size=3),  # (1,28,28) → (32,26,26)
+    nn.ReLU(),
+    nn.MaxPool2d(2),                   # → (32,13,13)
+    nn.Conv2d(32, 64, kernel_size=3),  # → (64,11,11)
+    nn.ReLU(),
+    nn.MaxPool2d(2),                   # → (64,5,5)
+    nn.Flatten(),                      # → 1600
+    nn.Linear(1600, 128),
+    nn.ReLU(),
+    nn.Linear(128, 10),
+).to(device)
+```
+
+---
+
+## Q19. "Инициализация весов — Xavier vs He/Kaiming"
+
+> "Правильная инициализация предотвращает vanishing/exploding gradients на старте. **Xavier** — для sigmoid/tanh. **He/Kaiming** — для ReLU (учитывает, что ReLU обнуляет половину значений)."
+
+```python
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_uniform_(m.weight)
+        nn.init.zeros_(m.bias)
+    elif isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+model.apply(init_weights)
+```
+
+| Инициализация | Активация | Дисперсия |
+|---------------|-----------|-----------|
+| **Xavier** (Glorot) | Sigmoid, Tanh | $\frac{2}{n_{in} + n_{out}}$ |
+| **He** (Kaiming) | ReLU, LeakyReLU | $\frac{2}{n_{in}}$ |
+
+---
+
+## Q20. "Инспекция модели — параметры и граф"
+
+> "На собеседовании могут попросить оценить количество параметров или объяснить структуру модели."
+
+```python
+# Количество параметров
+total = sum(p.numel() for p in model.parameters())
+trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+print(f"Total: {total:,}, Trainable: {trainable:,}")
+
+# Детальная сводка (pip install torchinfo)
+from torchinfo import summary
+summary(model, input_size=(1, 1, 28, 28))  # CNN: (batch, C, H, W)
+
+# Визуализация графа (pip install torchviz)
+import torchviz
+torchviz.make_dot(output, params=dict(model.named_parameters()))
+```
